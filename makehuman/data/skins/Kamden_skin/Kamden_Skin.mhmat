@@ -1,0 +1,31 @@
+# Material definition for Kamden skin
+
+name Kamden Skin
+description Kamden Skin
+// Color shading attributes
+diffuseColor  1 1 1
+specularColor  0 0 0
+shininess 0.1961
+opacity 0
+
+tag male
+tag Kamden
+
+// Textures and properties
+diffuseTexture Kamden_Skin_COL.jpg
+specularTexture Kamden_Skin_SPEC.jpg
+normalmapTexture Kamden_Skin_NRM.jpg
+
+
+// Shader programme
+shader shaders/glsl/litsphere
+shaderParam litsphereTexture litspheres/lit_matte.png
+
+// Configure built-in shader defines
+shaderConfig diffuse true
+shaderConfig bump false
+shaderConfig normal  true
+shaderConfig displacement  false
+shaderConfig spec  true
+shaderConfig vertexColors false
+

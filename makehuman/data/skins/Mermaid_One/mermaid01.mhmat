@@ -1,0 +1,5 @@
+name mermaid01
+ diffuseColor 0.5 0.5 0.5
+ tag mermaid
+ diffuseTexture mermaid01.png
+

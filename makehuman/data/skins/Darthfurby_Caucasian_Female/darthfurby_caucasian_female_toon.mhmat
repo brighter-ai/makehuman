@@ -1,0 +1,43 @@
+# Material definition for darthfurby_caucasian_female_toon
+
+name darthfurby_caucasian_female_toon
+description UnnamedMaterial material
+ambientColor 0.301960784314 0.278431372549 0.278431372549
+diffuseColor 1.0 1.0 1.0
+specularColor 0.0627450980392 0.0509803921569 0.0509803921569
+shininess 0.5
+emissiveColor 0.196078431373 0.101960784314 0.101960784314
+opacity 1.0
+translucency 0.0
+
+shadeless False
+wireframe False
+transparent False
+alphaToCoverage True
+backfaceCull True
+depthless False
+
+castShadows True
+
+receiveShadows True
+
+diffuseTexture darthfurby_caucasian_female.png
+
+# Sub-surface scattering parameters
+sssEnabled True
+sssRScale 5.0
+sssGScale 2.5
+sssBScale 1.0
+
+shader shaders/glsl/toon
+
+shaderParam litsphereTexture litspheres/lit_standard_skin.png
+
+shaderConfig ambientOcclusion True
+shaderConfig normal False
+shaderConfig bump True
+shaderConfig displacement False
+shaderConfig vertexColors True
+shaderConfig spec True
+shaderConfig transparency True
+shaderConfig diffuse True

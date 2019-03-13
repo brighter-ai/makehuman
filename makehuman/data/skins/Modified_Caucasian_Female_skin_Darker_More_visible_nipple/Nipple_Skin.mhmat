@@ -1,0 +1,4 @@
+name Nipple_Skin
+ diffuseColor 0.5 0.5 0.5
+ tag Nipple_Skin
+ diffuseTexture Nipple_Skin.png
