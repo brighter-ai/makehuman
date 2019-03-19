@@ -234,15 +234,11 @@ FACE_TARGETS = [
     'mouth/mouth-upperlip-width-decr|incr',
     'nose/nose-base-down|up',
     'nose/nose-compression-compress|uncompress',
-    'nose/nose-curve-concave|convex',
     'nose/nose-flaring-decr|incr',
-    'nose/nose-greek-decr|incr',
-    'nose/nose-hump-decr|incr',
     'nose/nose-nostrils-angle-down|up',
     'nose/nose-nostrils-width-decr|incr',
     'nose/nose-point-down|up',
     'nose/nose-point-width-decr|incr',
-    'nose/nose-scale-depth-decr|incr',
     'nose/nose-scale-horiz-decr|incr',
     'nose/nose-scale-vert-decr|incr',
     'nose/nose-septumangle-decr|incr',
@@ -252,7 +248,16 @@ FACE_TARGETS = [
     'nose/nose-volume-decr|incr',
     'nose/nose-width1-decr|incr',
     'nose/nose-width2-decr|incr',
-    'nose/nose-width3-decr|incr']
+    'nose/nose-width3-decr|incr',
+
+    # The next targets do modify the model in a way that changes the camera origin position
+    # In other words, rotation in 45deg may seem like a rotation of 60deg or more or less
+    # and rotation with 0 deg, i.e. the model should face perfectly the camera, appears like it's rotated.
+    # 'nose/nose-hump-decr|incr',
+    # 'nose/nose-scale-depth-decr|incr',
+    # 'nose/nose-greek-decr|incr',
+    # 'nose/nose-curve-concave|convex',
+]
 
 
 def is_constant_key(key):

@@ -4,12 +4,12 @@ import os
 import uuid
 from core import G
 
-from PyQt5 import QtGui
-from PyQt5 import QtCore
-from PyQt5.QtGui import *
-from PyQt5 import QtWidgets
+# from PyQt5 import QtGui
+# from PyQt5 import QtCore
+# from PyQt5.QtGui import *
+# from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import *
+# from PyQt5.QtCore import *
 
 from .util.selectors import EyelashesSelector, EyebrowsSelector, EyeColorSelector, EyesSelector, TeethSelector, \
     TongueSelector, ExpressionSelector, SkinSelector, BackgroundSelector
@@ -25,13 +25,13 @@ class BrighterAITaskView(gui3d.TaskView):
     def __init__(self, category):
 
         self.sampling = 0
-        self.grid_h = 3
-        self.grid_w = 3
-        self.min_angle = -90
-        self.max_angle = 90
-        self.quantity = 3
+        self.grid_h = 1  # 3
+        self.grid_w = 1  # 3
+        self.min_angle = 0  # -90
+        self.max_angle = 1  # 90
+        self.quantity = 10  # 3
         self.canvas_size = 800
-        self.exp_nbr = 5
+        self.exp_nbr = 3  # 5
         self.saving_path = ''
         self.min_age = 0
         self.max_age = 70
@@ -276,9 +276,7 @@ class BrighterAITaskView(gui3d.TaskView):
                 with AttributeSaver() as w:
                     for q in range(self.quantity):
                         # reset model expression
-                        # I can not use `exp_tv.chooseExpression(None)` because it changes the angles of the model.
-                        G.app.resetHuman()
-                        self.app.selectedHuman.setSubdivided(True)
+                        exp_tv.chooseExpression(None)
 
                         const_reg.apply()
                         eyes_selector.apply()
