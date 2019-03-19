@@ -14,7 +14,7 @@ from PyQt5.QtCore import *
 from .util.selectors import EyelashesSelector, EyebrowsSelector, EyeColorSelector, EyesSelector, TeethSelector, \
     TongueSelector, ExpressionSelector, SkinSelector, BackgroundSelector
 from .util.regressors import AgeRegressor, BetaRegressor, ConstRegressor, EthnicityRegressor, FaceRegressor, LightRegressor
-from .util.savers import AttributeSaver, UVMapSaver, VerticesSaver, ScreenSaver
+from .util.savers import AttributeSaver, UVMapSaver, VerticesSaver, ScreenSaver, CenterPointSaver
 from .util.camera import Camera
 from .util.model_data import ModelData
 from .util.constant import EXPRESSIONS
@@ -271,6 +271,7 @@ class BrighterAITaskView(gui3d.TaskView):
                 screen_saver = ScreenSaver(G.windowWidth, G.windowHeight)
                 uv_map_saver = UVMapSaver(self.app.selectedHuman.material)
                 vertices_saver = VerticesSaver(self.app.mhapi.mesh, G.app.mhapi.locations.getInstallationPath())
+                cp_saver = CenterPointSaver(self.app.selectedHuman)
                 skin_selector = SkinSelector(self.app.selectedHuman, community=self.community, special=self.special)
                 bg_selector = BackgroundSelector()
 
@@ -304,6 +305,7 @@ class BrighterAITaskView(gui3d.TaskView):
                                 bg_selector.apply()
                                 # light_reg.apply()
                                 screen_saver.save(expression, i)
+                                cp_saver.save()
                                 w.save()
                 self.is_warned = False
 
