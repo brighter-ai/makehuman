@@ -43,7 +43,7 @@ class ExpressionSelector(Selector):
         self.model_data.set('expression', self.selected)
 
     def apply(self, reselect=True):
-        self.selection = EXPRESSIONS
+        self.selection = EXPRESSIONS.copy()
         for i in range(self.rand_expressions):
             if reselect:
                 self.choose()
