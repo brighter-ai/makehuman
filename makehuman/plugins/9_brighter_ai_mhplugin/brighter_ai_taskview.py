@@ -4,16 +4,11 @@ import os
 import uuid
 from core import G
 
-# from PyQt5 import QtGui
-# from PyQt5 import QtCore
-# from PyQt5.QtGui import *
-# from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import *
-# from PyQt5.QtCore import *
 
 from .util.selectors import EyelashesSelector, EyebrowsSelector, EyeColorSelector, EyesSelector, TeethSelector, \
     TongueSelector, ExpressionSelector, SkinSelector, BackgroundSelector
-from .util.regressors import AgeRegressor, BetaRegressor, ConstRegressor, EthnicityRegressor, FaceRegressor, LightRegressor
+from .util.regressors import AgeRegressor, BetaRegressor, ConstRegressor, EthnicityRegressor, FaceRegressor
 from .util.savers import AttributeSaver, UVMapSaver, VerticesSaver, ScreenSaver, CenterPointSaver
 from .util.camera import Camera
 from .util.model_data import ModelData
@@ -25,13 +20,13 @@ class BrighterAITaskView(gui3d.TaskView):
     def __init__(self, category):
 
         self.sampling = 0
-        self.grid_h = 1  # 3
-        self.grid_w = 1  # 3
-        self.min_angle = 0  # -90
-        self.max_angle = 1  # 90
-        self.quantity = 10  # 3
+        self.grid_h = 3
+        self.grid_w = 3
+        self.min_angle = -90
+        self.max_angle = 90
+        self.quantity = 10
         self.canvas_size = 800
-        self.exp_nbr = 3  # 5
+        self.exp_nbr = 5
         self.saving_path = ''
         self.min_age = 0
         self.max_age = 70
@@ -48,64 +43,60 @@ class BrighterAITaskView(gui3d.TaskView):
 
         gui3d.TaskView.__init__(self, category, 'Brighter AI')
 
-        baiBox = self.addLeftWidget(gui.GroupBox('Generate 3D Faces'))
+        bai_box = self.addLeftWidget(gui.GroupBox('Generate 3D Faces'))
 
-        self.samplingLabel = baiBox.addWidget(gui.TextView('Probability distribution (Face):'))
+        self.samplingLabel = bai_box.addWidget(gui.TextView('Probability distribution (Face):'))
         self.samplingRBGroup = []
 
         # We make the first one selected
-        self.samplingRB1 = baiBox.addWidget(gui.RadioButton(self.samplingRBGroup, 'Uniform', selected=True))
-        self.samplingRB2 = baiBox.addWidget(gui.RadioButton(self.samplingRBGroup, 'N(0.5, 1/6)'))
-        self.samplingRB3 = baiBox.addWidget(gui.RadioButton(self.samplingRBGroup, 'N(0.5, 1/3)'))
-        self.samplingRB4 = baiBox.addWidget(gui.RadioButton(self.samplingRBGroup, 'N(0.5, 1/2)'))
-        self.samplingRB5 = baiBox.addWidget(gui.RadioButton(self.samplingRBGroup, 'N(0.5, 2/3)'))
+        self.samplingRB1 = bai_box.addWidget(gui.RadioButton(self.samplingRBGroup, 'Uniform', selected=True))
+        self.samplingRB2 = bai_box.addWidget(gui.RadioButton(self.samplingRBGroup, 'N(0.5, 1/6)'))
+        self.samplingRB3 = bai_box.addWidget(gui.RadioButton(self.samplingRBGroup, 'N(0.5, 1/3)'))
+        self.samplingRB4 = bai_box.addWidget(gui.RadioButton(self.samplingRBGroup, 'N(0.5, 1/2)'))
+        self.samplingRB5 = bai_box.addWidget(gui.RadioButton(self.samplingRBGroup, 'N(0.5, 2/3)'))
 
-        self.camSizeLabel = baiBox.addWidget(gui.TextView('Camera Grid Size:'))
-        self.camHeight = baiBox.addWidget(gui.TextEdit(text=''))
+        self.camSizeLabel = bai_box.addWidget(gui.TextView('Camera Grid Size:'))
+        self.camHeight = bai_box.addWidget(gui.TextEdit(text=''))
         self.camHeight.setPlaceholderText('Height')
-        self.camWidth = baiBox.addWidget(gui.TextEdit(text=''))
+        self.camWidth = bai_box.addWidget(gui.TextEdit(text=''))
         self.camWidth.setPlaceholderText('Width')
-        self.camSizeError = baiBox.addWidget(gui.TextView('grid size: {} x {}'.format(self.grid_w, self.grid_h)))
+        self.camSizeError = bai_box.addWidget(gui.TextView('grid size: {} x {}'.format(self.grid_w, self.grid_h)))
 
-        self.camAngleLabel = baiBox.addWidget(gui.TextView('Camera Angle Interval:'))
-        self.camMin = baiBox.addWidget(gui.TextEdit(text=''))
+        self.camAngleLabel = bai_box.addWidget(gui.TextView('Camera Angle Interval:'))
+        self.camMin = bai_box.addWidget(gui.TextEdit(text=''))
         self.camMin.setPlaceholderText('Min angle')
-        self.camMax = baiBox.addWidget(gui.TextEdit(text=''))
+        self.camMax = bai_box.addWidget(gui.TextEdit(text=''))
         self.camMax.setPlaceholderText('Max angle')
-        self.camAngleError = baiBox.addWidget(gui.TextView('[{}, {}]'.format(self.min_angle, self.max_angle)))
+        self.camAngleError = bai_box.addWidget(gui.TextView('[{}, {}]'.format(self.min_angle, self.max_angle)))
 
-        self.ageIntervalLabel = baiBox.addWidget(gui.TextView('Age interval:'))
-        self.ageMin = baiBox.addWidget(gui.TextEdit(text=''))
+        self.ageIntervalLabel = bai_box.addWidget(gui.TextView('Age interval:'))
+        self.ageMin = bai_box.addWidget(gui.TextEdit(text=''))
         self.ageMin.setPlaceholderText('Min age')
-        self.ageMax = baiBox.addWidget(gui.TextEdit(text=''))
+        self.ageMax = bai_box.addWidget(gui.TextEdit(text=''))
         self.ageMax.setPlaceholderText('Max age')
-        self.ageErrorLabel = baiBox.addWidget(gui.TextView('{} <= age <= {}'.format(self.min_age, self.max_age)))
+        self.ageErrorLabel = bai_box.addWidget(gui.TextView('{} <= age <= {}'.format(self.min_age, self.max_age)))
 
-        self.communityButton = baiBox.addWidget(gui.CheckBox('Community Skins'))
-        self.specialButton = baiBox.addWidget(gui.CheckBox('Special Skins'))
+        self.communityButton = bai_box.addWidget(gui.CheckBox('Community Skins'))
+        self.specialButton = bai_box.addWidget(gui.CheckBox('Special Skins'))
 
-        self.expLabel = baiBox.addWidget(gui.TextView('# expression per model:'))
-        self.expTE = baiBox.addWidget(gui.TextEdit(text=''))
-        self.expErrorLabel = baiBox.addWidget(gui.TextView('# = {}'.format(self.exp_nbr)))
+        self.expLabel = bai_box.addWidget(gui.TextView('# expression per model:'))
+        self.expTE = bai_box.addWidget(gui.TextEdit(text=''))
+        self.expErrorLabel = bai_box.addWidget(gui.TextView('# = {}'.format(self.exp_nbr)))
 
-        self.CSLabel = baiBox.addWidget(gui.TextView('Image Shape (height = width)'))
-        self.canvasSizeTE = baiBox.addWidget(gui.TextEdit(text=''))
-        self.csErrorLabel = baiBox.addWidget(gui.TextView('Image shape = {}x{}'.format(self.canvas_size, self.canvas_size)))
+        self.CSLabel = bai_box.addWidget(gui.TextView('Image Shape (height = width)'))
+        self.canvasSizeTE = bai_box.addWidget(gui.TextEdit(text=''))
+        self.csErrorLabel = bai_box.addWidget(gui.TextView('Image shape = {}x{}'.format(self.canvas_size, self.canvas_size)))
 
-        self.quantityLabel = baiBox.addWidget(gui.TextView('# models to generate:'))
-        self.quantityTE = baiBox.addWidget(gui.TextEdit(text=''))
-        self.qErrorLabel = baiBox.addWidget(gui.TextView('# = {}'.format(self.quantity)))
+        self.quantityLabel = bai_box.addWidget(gui.TextView('# models to generate:'))
+        self.quantityTE = bai_box.addWidget(gui.TextEdit(text=''))
+        self.qErrorLabel = bai_box.addWidget(gui.TextView('# = {}'.format(self.quantity)))
 
-        self.savingPathLabel = baiBox.addWidget(gui.TextView('Saving directory path:'))
-        self.savingPathTE = baiBox.addWidget(gui.TextEdit(text=''))
+        self.savingPathLabel = bai_box.addWidget(gui.TextView('Saving directory path:'))
+        self.savingPathTE = bai_box.addWidget(gui.TextEdit(text=''))
         self.savingPathTE.setPlaceholderText('Absolute path')
-        self.spErrorLabel = baiBox.addWidget(gui.TextView(''))
+        self.spErrorLabel = bai_box.addWidget(gui.TextView(''))
 
-        self.startButton = baiBox.addWidget(gui.Button("Start"))
-
-        self.progressBar = baiBox.addWidget(gui.ProgressBar())
-        self.progressBar.setProgress(0.)
-        self.progressBar.setHidden(True)
+        self.startButton = bai_box.addWidget(gui.Button("Start"))
 
         @self.samplingRB1.mhEvent
         def onClicked(event):
@@ -263,7 +254,6 @@ class BrighterAITaskView(gui3d.TaskView):
                 const_reg = ConstRegressor(self.app.selectedHuman, 0.5)
                 ethnicity_reg = EthnicityRegressor(self.app.selectedHuman)
                 face_reg = FaceRegressor(self.app.selectedHuman, self.sampling)
-                # light_reg = LightRegressor(self.app.scene.lights[0])
                 camera = Camera(self.app, self.grid_w, self.grid_h, self.min_angle, self.max_angle)
 
                 screen_saver = ScreenSaver(G.windowWidth, G.windowHeight)
@@ -301,7 +291,6 @@ class BrighterAITaskView(gui3d.TaskView):
                             vertices_saver.save()
                             for i in camera.get_cam_position():
                                 bg_selector.apply()
-                                # light_reg.apply()
                                 screen_saver.save(expression, i)
                                 cp_saver.save()
                                 w.save()
