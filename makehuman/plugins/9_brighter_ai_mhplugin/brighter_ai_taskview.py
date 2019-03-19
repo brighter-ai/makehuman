@@ -45,8 +45,6 @@ class BrighterAITaskView(gui3d.TaskView):
         self.app = G.app
         # set smoothed to True => better rendering, more details
         self.app.selectedHuman.setSubdivided(True)
-        # needed to be called at least once to be able to change the model expression.
-        self.app.modules['2_posing_expression'].taskview._load_pose_units()
 
         gui3d.TaskView.__init__(self, category, 'Brighter AI')
 
@@ -278,7 +276,9 @@ class BrighterAITaskView(gui3d.TaskView):
                 with AttributeSaver() as w:
                     for q in range(self.quantity):
                         # reset model expression
-                        exp_tv.chooseExpression(None)
+                        # I can not use `exp_tv.chooseExpression(None)` because it changes the angles of the model.
+                        G.app.resetHuman()
+                        self.app.selectedHuman.setSubdivided(True)
 
                         const_reg.apply()
                         eyes_selector.apply()
