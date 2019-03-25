@@ -1263,7 +1263,11 @@ class MHApplication(gui3d.Application, mh.Application):
             self.redraw()
 
     def setFaceCamera(self):
+        import numpy as np
         self.setTargetCamera(132, 8.7)
+        coord = self.selectedHuman.meshData.coord[132]
+        direction = np.array([0, 0, 1])
+        self.modelCamera.focusOn(coord, direction, 8.7, True)
 
     def setLeftHandFrontCamera(self):
         self.setTargetCamera(9828, 10)
