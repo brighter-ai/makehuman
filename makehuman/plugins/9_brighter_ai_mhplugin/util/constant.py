@@ -249,14 +249,10 @@ FACE_TARGETS = [
     'nose/nose-width1-decr|incr',
     'nose/nose-width2-decr|incr',
     'nose/nose-width3-decr|incr',
-
-    # The next targets do modify the model in a way that changes the camera origin position
-    # In other words, rotation in 45deg may seem like a rotation of 60deg or more or less
-    # and rotation with 0 deg, i.e. the model should face perfectly the camera, appears like it's rotated.
-    # 'nose/nose-hump-decr|incr',
-    # 'nose/nose-scale-depth-decr|incr',
-    # 'nose/nose-greek-decr|incr',
-    # 'nose/nose-curve-concave|convex',
+    'nose/nose-hump-decr|incr',
+    'nose/nose-scale-depth-decr|incr',
+    'nose/nose-greek-decr|incr',
+    'nose/nose-curve-concave|convex',
 ]
 
 
