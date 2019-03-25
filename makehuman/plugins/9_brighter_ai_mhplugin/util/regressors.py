@@ -23,11 +23,11 @@ class AgeRegressor(Regressor):
         self.human = human
         self.md = ModelData()
         self.age = None
-        self.min_age = min_age / 70
-        self.max_age = max_age / 70
+        self.min_age = min_age / 70.
+        self.max_age = max_age / 70.
 
     def randomize(self):
-        self.age = (self.max_age - self.min_age) * np.random.random() + self.min_age
+        self.age = self.min_age  # (self.max_age - self.min_age) * np.random.random() + self.min_age  # /home/bothmena/Data/BrighterAI/fixed_age
         self.md.set('macrodetails/Age', self.age)
         self.md.set('real_age', self.age * 70)
 

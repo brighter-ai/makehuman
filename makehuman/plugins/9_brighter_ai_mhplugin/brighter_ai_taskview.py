@@ -240,60 +240,64 @@ class BrighterAITaskView(gui3d.TaskView):
                 self.startButton.setText('Start')
                 set_canvas_size(self.canvas_size)
 
-                eyelashes_selector = EyelashesSelector(self.app.modules['3_libraries_eyelashes'].taskview)
-                eyebrows_selector = EyebrowsSelector(self.app.modules['3_libraries_eyebrows'].taskview)
-                eye_color_selector = EyeColorSelector(self.app.modules['3_libraries_material_chooser'].material, self.app.selectedHuman)
-                eyes_selector = EyesSelector(self.app.modules['3_libraries_eye_chooser'].taskview)
-                teeth_selector = TeethSelector(self.app.modules['3_libraries_teeth'].taskview)
-                tongue_selector = TongueSelector(self.app.modules['3_libraries_tongue'].taskview)
-                exp_tv = self.app.modules['2_posing_expression'].taskview
-                expression_selector = ExpressionSelector(exp_tv, self.exp_nbr)
+                for age in [0, 7, 14, 21, 28, 35, 42, 49, 56, 63, 70]:
 
-                age_reg = AgeRegressor(self.app.selectedHuman, self.min_age, self.max_age)
-                beta_reg = BetaRegressor(self.app.selectedHuman)
-                const_reg = ConstRegressor(self.app.selectedHuman, 0.5)
-                ethnicity_reg = EthnicityRegressor(self.app.selectedHuman)
-                face_reg = FaceRegressor(self.app.selectedHuman, self.sampling)
-                camera = Camera(self.app, self.grid_w, self.grid_h, self.min_angle, self.max_angle)
+                    self.min_age = age
 
-                screen_saver = ScreenSaver(G.windowWidth, G.windowHeight)
-                uv_map_saver = UVMapSaver(self.app.selectedHuman.material)
-                vertices_saver = VerticesSaver(self.app.mhapi.mesh, G.app.mhapi.locations.getInstallationPath())
-                cp_saver = CenterPointSaver(self.app.selectedHuman)
-                skin_selector = SkinSelector(self.app.selectedHuman, community=self.community, special=self.special)
-                bg_selector = BackgroundSelector()
+                    eyelashes_selector = EyelashesSelector(self.app.modules['3_libraries_eyelashes'].taskview)
+                    eyebrows_selector = EyebrowsSelector(self.app.modules['3_libraries_eyebrows'].taskview)
+                    eye_color_selector = EyeColorSelector(self.app.modules['3_libraries_material_chooser'].material, self.app.selectedHuman)
+                    eyes_selector = EyesSelector(self.app.modules['3_libraries_eye_chooser'].taskview)
+                    teeth_selector = TeethSelector(self.app.modules['3_libraries_teeth'].taskview)
+                    tongue_selector = TongueSelector(self.app.modules['3_libraries_tongue'].taskview)
+                    exp_tv = self.app.modules['2_posing_expression'].taskview
+                    expression_selector = ExpressionSelector(exp_tv, self.exp_nbr)
 
-                with AttributeSaver() as w:
-                    for q in range(self.quantity):
-                        # reset model expression
-                        exp_tv.chooseExpression(None)
+                    age_reg = AgeRegressor(self.app.selectedHuman, self.min_age, self.max_age)
+                    beta_reg = BetaRegressor(self.app.selectedHuman)
+                    const_reg = ConstRegressor(self.app.selectedHuman, 0.5)
+                    ethnicity_reg = EthnicityRegressor(self.app.selectedHuman)
+                    face_reg = FaceRegressor(self.app.selectedHuman, self.sampling)
+                    camera = Camera(self.app, self.grid_w, self.grid_h, self.min_angle, self.max_angle)
 
-                        const_reg.apply()
-                        eyes_selector.apply()
-                        tongue_selector.apply()
+                    screen_saver = ScreenSaver(G.windowWidth, G.windowHeight)
+                    uv_map_saver = UVMapSaver(self.app.selectedHuman.material)
+                    vertices_saver = VerticesSaver(self.app.mhapi.mesh, G.app.mhapi.locations.getInstallationPath())
+                    cp_saver = CenterPointSaver(self.app.selectedHuman)
+                    skin_selector = SkinSelector(self.app.selectedHuman, community=self.community, special=self.special)
+                    bg_selector = BackgroundSelector()
 
-                        eyelashes_selector.apply()
-                        eye_color_selector.apply()
-                        eyebrows_selector.apply()
-                        teeth_selector.apply()
-                        face_reg.apply()
-                        age_reg.apply()
-                        beta_reg.apply()
-                        ethnicity_reg.apply()
-                        skin_selector.apply()
-                        self.app.selectedHuman.applyAllTargets()
-                        self.md.set('model_uid', str(uuid.uuid4()).replace('-', '_'))
+                    with AttributeSaver() as w:
+                        for q in range(self.quantity):
+                            # reset model expression
+                            exp_tv.chooseExpression(None)
 
-                        uv_map_saver.save()
-                        vertices_saver.save(expression=False)
+                            const_reg.apply()
+                            eyes_selector.apply()
+                            tongue_selector.apply()
 
-                        for _, expression in expression_selector.apply():
-                            vertices_saver.save()
-                            for i in camera.get_cam_position():
-                                bg_selector.apply()
-                                screen_saver.save(expression, i)
-                                cp_saver.save()
-                                w.save()
+                            eyelashes_selector.apply()
+                            eye_color_selector.apply()
+                            eyebrows_selector.apply()
+                            teeth_selector.apply()
+                            face_reg.apply()
+                            age_reg.apply()
+                            beta_reg.apply()
+                            ethnicity_reg.apply()
+                            skin_selector.apply()
+                            self.app.selectedHuman.applyAllTargets()
+                            self.md.set('model_uid', str(uuid.uuid4()).replace('-', '_'))
+
+                            uv_map_saver.save()
+                            vertices_saver.save(expression=False)
+
+                            for _, expression in expression_selector.apply():
+                                vertices_saver.save()
+                                for i in camera.get_cam_position():
+                                    bg_selector.apply()
+                                    screen_saver.save(expression, i)
+                                    cp_saver.save()
+                                    w.save()
                 self.is_warned = False
 
         def is_form_invalid():
