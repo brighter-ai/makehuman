@@ -252,7 +252,6 @@ class BrighterAITaskView(gui3d.TaskView):
                 age_reg = AgeRegressor(self.app.selectedHuman, self.min_age, self.max_age)
                 beta_reg = BetaRegressor(self.app.selectedHuman)
                 const_reg = ConstRegressor(self.app.selectedHuman, 0.5)
-                ethnicity_reg = EthnicityRegressor(self.app.selectedHuman)
                 face_reg = FaceRegressor(self.app.selectedHuman, self.sampling)
                 camera = Camera(self.app, self.grid_w, self.grid_h, self.min_angle, self.max_angle)
 
@@ -279,7 +278,6 @@ class BrighterAITaskView(gui3d.TaskView):
                         face_reg.apply()
                         age_reg.apply()
                         beta_reg.apply()
-                        ethnicity_reg.apply()
                         skin_selector.apply()
                         self.app.selectedHuman.applyAllTargets()
                         self.md.set('model_uid', str(uuid.uuid4()).replace('-', '_'))
