@@ -81,35 +81,6 @@ class ConstRegressor(Regressor):
             modifier.setValue(val)
 
 
-class EthnicityRegressor(Regressor):
-
-    def __init__(self, human):
-        self.human = human
-        self.md = ModelData()
-        self.values = {}
-
-    def randomize(self):
-        p_af = random()
-        p_as = (1 - p_af) * random()
-        probs = [p_af, p_as, 1 - p_af - p_as]
-
-        for key, val in zip(ETHNICITY, probs):
-            self.values[key] = val
-            self.md.set(key, val)
-
-        if (probs == np.max(probs)).sum() > 1:
-            self.md.set('ethnicity', 'none')
-        else:
-            self.md.set('ethnicity', ['african', 'asian', 'caucasian'][np.argmax(probs)])
-
-    def apply(self, reselect=True):
-        if reselect:
-            self.randomize()
-        for key, val in self.values.items():
-            modifier = self.human.getModifier(key)
-            modifier.setValue(val)
-
-
 class FaceRegressor(Regressor):
 
     def __init__(self, human, stddev):

@@ -16,7 +16,6 @@ class ModelData:
         'eyes': '',
         'teeth': '',
         'tongue': '',
-        'ethnicity': '',
         'real_age': '',
         'camera_x': '',
         'camera_y': '',

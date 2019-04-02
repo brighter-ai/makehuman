@@ -39,11 +39,8 @@ class ScreenSaver(Saver):
         self.light_reg = LightRegressor(self.scene.lights[0])
 
     def save(self, expression, cam_counter):
-        # scene = G.app.getScene()
         self.scene.load('data/scenes/default.mhscene')
         self.scene.lights[0] = self.light_reg.apply()
-        # scene.lights[0].__setattr__('position', (200, 20, 20))
-        # scene.lights[0].__setattr__('color', (0.0784313725490196, 0.3215686274509804, 1.0))
 
         G.app.setScene(self.scene)
 

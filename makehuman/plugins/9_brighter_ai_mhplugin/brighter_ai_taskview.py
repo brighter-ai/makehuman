@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import *
 
 from .util.selectors import EyelashesSelector, EyebrowsSelector, EyeColorSelector, EyesSelector, TeethSelector, \
     TongueSelector, ExpressionSelector, SkinSelector, BackgroundSelector
-from .util.regressors import AgeRegressor, BetaRegressor, ConstRegressor, EthnicityRegressor, FaceRegressor
+from .util.regressors import AgeRegressor, BetaRegressor, ConstRegressor, FaceRegressor
 from .util.savers import AttributeSaver, UVMapSaver, VerticesSaver, ScreenSaver, CenterPointSaver
 from .util.camera import Camera
 from .util.model_data import ModelData
