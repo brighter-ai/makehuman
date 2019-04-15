@@ -36,7 +36,6 @@ __pycache__/
 #*.bvh
 #*.mhskel
 #/makehuman/data/*
-/makehuman/plugins/9_brighter_ai_mhplugin
 base_1-1_contents.txt
 
 # Pydev Eclipse#
