@@ -3,6 +3,7 @@ import gui
 import os
 import uuid
 from core import G
+import yaml
 
 from PyQt5.QtWidgets import *
 
@@ -17,24 +18,28 @@ from .util.constant import EXPRESSIONS
 
 class BrighterAITaskView(gui3d.TaskView):
 
+    config_filename = '.config.yaml'
+    config_attr = ['sampling', 'grid_h', 'grid_w', 'min_angle', 'max_angle', 'min_age', 'max_age', 'community', 'special', 'exp_nbr', 'canvas_size', 'quantity', 'saving_path']
+    defaults = [1, 3, 3, -90, 90, 20, 70, False, False, 5, 800, 10, '']
+
     def __init__(self, category):
 
         self.sampling = 0
+        self.sampling_choice = 1
         self.grid_h = 3
         self.grid_w = 3
         self.min_angle = -90
         self.max_angle = 90
-        self.quantity = 10
-        self.canvas_size = 800
-        self.exp_nbr = 5
-        self.saving_path = ''
         self.min_age = 0
         self.max_age = 70
-        self.stop_gen = False
-        self.counter = 0
         self.community = False
         self.special = False
+        self.exp_nbr = 5
+        self.canvas_size = 800
+        self.quantity = 10
+        self.saving_path = ''
         self.is_warned = False
+        self.config_loaded = False
 
         self.md = ModelData()
         self.app = G.app
@@ -49,180 +54,190 @@ class BrighterAITaskView(gui3d.TaskView):
         self.samplingRBGroup = []
 
         # We make the first one selected
-        self.samplingRB1 = bai_box.addWidget(gui.RadioButton(self.samplingRBGroup, 'Uniform', selected=True))
-        self.samplingRB2 = bai_box.addWidget(gui.RadioButton(self.samplingRBGroup, 'N(0.5, 1/6)'))
-        self.samplingRB3 = bai_box.addWidget(gui.RadioButton(self.samplingRBGroup, 'N(0.5, 1/3)'))
-        self.samplingRB4 = bai_box.addWidget(gui.RadioButton(self.samplingRBGroup, 'N(0.5, 1/2)'))
-        self.samplingRB5 = bai_box.addWidget(gui.RadioButton(self.samplingRBGroup, 'N(0.5, 2/3)'))
+        self.sampling_RB_1 = bai_box.addWidget(gui.RadioButton(self.samplingRBGroup, 'Uniform', selected=True))
+        self.sampling_RB_2 = bai_box.addWidget(gui.RadioButton(self.samplingRBGroup, 'N(0.5, 1/6)'))
+        self.sampling_RB_3 = bai_box.addWidget(gui.RadioButton(self.samplingRBGroup, 'N(0.5, 1/3)'))
+        self.sampling_RB_4 = bai_box.addWidget(gui.RadioButton(self.samplingRBGroup, 'N(0.5, 1/2)'))
+        self.sampling_RB_5 = bai_box.addWidget(gui.RadioButton(self.samplingRBGroup, 'N(0.5, 2/3)'))
 
         self.camSizeLabel = bai_box.addWidget(gui.TextView('Camera Grid Size:'))
-        self.camHeight = bai_box.addWidget(gui.TextEdit(text=''))
-        self.camHeight.setPlaceholderText('Height')
-        self.camWidth = bai_box.addWidget(gui.TextEdit(text=''))
-        self.camWidth.setPlaceholderText('Width')
+        self.grid_h_TE = bai_box.addWidget(gui.TextEdit(text=''))
+        self.grid_h_TE.setPlaceholderText('Height')
+        self.grid_w_TE = bai_box.addWidget(gui.TextEdit(text=''))
+        self.grid_w_TE.setPlaceholderText('Width')
         self.camSizeError = bai_box.addWidget(gui.TextView('grid size: {} x {}'.format(self.grid_w, self.grid_h)))
 
         self.camAngleLabel = bai_box.addWidget(gui.TextView('Camera Angle Interval:'))
-        self.camMin = bai_box.addWidget(gui.TextEdit(text=''))
-        self.camMin.setPlaceholderText('Min angle')
-        self.camMax = bai_box.addWidget(gui.TextEdit(text=''))
-        self.camMax.setPlaceholderText('Max angle')
+        self.min_angle_TE = bai_box.addWidget(gui.TextEdit(text=''))
+        self.min_angle_TE.setPlaceholderText('Min angle')
+        self.max_angle_TE = bai_box.addWidget(gui.TextEdit(text=''))
+        self.max_angle_TE.setPlaceholderText('Max angle')
         self.camAngleError = bai_box.addWidget(gui.TextView('[{}, {}]'.format(self.min_angle, self.max_angle)))
 
         self.ageIntervalLabel = bai_box.addWidget(gui.TextView('Age interval:'))
-        self.ageMin = bai_box.addWidget(gui.TextEdit(text=''))
-        self.ageMin.setPlaceholderText('Min age')
-        self.ageMax = bai_box.addWidget(gui.TextEdit(text=''))
-        self.ageMax.setPlaceholderText('Max age')
+        self.min_age_TE = bai_box.addWidget(gui.TextEdit(text=''))
+        self.min_age_TE.setPlaceholderText('Min age')
+        self.max_age_TE = bai_box.addWidget(gui.TextEdit(text=''))
+        self.max_age_TE.setPlaceholderText('Max age')
         self.ageErrorLabel = bai_box.addWidget(gui.TextView('{} <= age <= {}'.format(self.min_age, self.max_age)))
 
-        self.communityButton = bai_box.addWidget(gui.CheckBox('Community Skins'))
-        self.specialButton = bai_box.addWidget(gui.CheckBox('Special Skins'))
+        self.community_CB = bai_box.addWidget(gui.CheckBox('Community Skins'))
+        self.special_CB = bai_box.addWidget(gui.CheckBox('Special Skins'))
 
         self.expLabel = bai_box.addWidget(gui.TextView('# expression per model:'))
-        self.expTE = bai_box.addWidget(gui.TextEdit(text=''))
+        self.exp_nbr_TE = bai_box.addWidget(gui.TextEdit(text=''))
         self.expErrorLabel = bai_box.addWidget(gui.TextView('# = {}'.format(self.exp_nbr)))
 
         self.CSLabel = bai_box.addWidget(gui.TextView('Image Shape (height = width)'))
-        self.canvasSizeTE = bai_box.addWidget(gui.TextEdit(text=''))
+        self.canvas_size_TE = bai_box.addWidget(gui.TextEdit(text=''))
         self.csErrorLabel = bai_box.addWidget(gui.TextView('Image shape = {}x{}'.format(self.canvas_size, self.canvas_size)))
 
         self.quantityLabel = bai_box.addWidget(gui.TextView('# models to generate:'))
-        self.quantityTE = bai_box.addWidget(gui.TextEdit(text=''))
+        self.quantity_TE = bai_box.addWidget(gui.TextEdit(text=''))
         self.qErrorLabel = bai_box.addWidget(gui.TextView('# = {}'.format(self.quantity)))
 
         self.savingPathLabel = bai_box.addWidget(gui.TextView('Saving directory path:'))
-        self.savingPathTE = bai_box.addWidget(gui.TextEdit(text=''))
-        self.savingPathTE.setPlaceholderText('Absolute path')
+        self.saving_path_TE = bai_box.addWidget(gui.TextEdit(text=''))
+        self.saving_path_TE.setPlaceholderText('Absolute path')
         self.spErrorLabel = bai_box.addWidget(gui.TextView(''))
 
         self.startButton = bai_box.addWidget(gui.Button("Start"))
 
-        @self.samplingRB1.mhEvent
+        @self.sampling_RB_1.mhEvent
         def onClicked(event):
             self.sampling = 0
+            self.sampling_choice = 1
 
-        @self.samplingRB2.mhEvent
+        @self.sampling_RB_2.mhEvent
         def onClicked(event):
             self.sampling = 1 / 6.
+            self.sampling_choice = 2
 
-        @self.samplingRB3.mhEvent
+        @self.sampling_RB_3.mhEvent
         def onClicked(event):
             self.sampling = 1 / 3.
+            self.sampling_choice = 3
 
-        @self.samplingRB4.mhEvent
+        @self.sampling_RB_4.mhEvent
         def onClicked(event):
             self.sampling = 1 / 2.
+            self.sampling_choice = 4
 
-        @self.samplingRB5.mhEvent
+        @self.sampling_RB_5.mhEvent
         def onClicked(event):
             self.sampling = 2 / 3.
+            self.sampling_choice = 5
 
-        @self.camHeight.mhEvent
+        @self.grid_h_TE.mhEvent
         def onChange(event):
             try:
-                self.grid_h = int(self.camHeight.getText())
+                self.grid_h = int(self.grid_h_TE.getText())
                 if self.grid_h < 1 or self.grid_h > 9:
                     raise ValueError()
                 self.camSizeError.setTextFormat('grid size: %d x %d', self.grid_w, self.grid_h)
             except ValueError:
                 self.camSizeError.setText('1 <= Height <= 9')
 
-        @self.camWidth.mhEvent
+        @self.grid_w_TE.mhEvent
         def onChange(event):
             try:
-                self.grid_w = int(self.camWidth.getText())
+                self.grid_w = int(self.grid_w_TE.getText())
                 if self.grid_w < 1 or self.grid_w > 9:
                     raise ValueError()
                 self.camSizeError.setTextFormat('grid size: %d x %d', self.grid_w, self.grid_h)
             except ValueError:
                 self.camSizeError.setText('1 <= Width <= 9')
 
-        @self.camMin.mhEvent
+        @self.min_angle_TE.mhEvent
         def onChange(event):
             try:
-                self.min_angle = int(self.camMin.getText())
+                self.min_angle = int(self.min_angle_TE.getText())
                 if self.min_angle < -90 or self.min_angle >= self.max_angle:
                     raise ValueError()
                 self.camAngleError.setTextFormat('[{}, {}]'.format(self.min_angle, self.max_angle))
             except ValueError:
                 self.camAngleError.setText('-90 <= Max Angle <= {}'.format(self.max_angle))
 
-        @self.camMax.mhEvent
+        @self.max_angle_TE.mhEvent
         def onChange(event):
             try:
-                self.max_angle = int(self.camMax.getText())
+                self.max_angle = int(self.max_angle_TE.getText())
                 if self.max_angle > 90 or self.max_angle <= self.min_angle:
                     raise ValueError()
                 self.camAngleError.setTextFormat('[{}, {}]'.format(self.min_angle, self.max_angle))
             except ValueError:
                 self.camAngleError.setText('{} <= Max Angle <= 90'.format(self.min_angle))
 
-        @self.ageMin.mhEvent
+        @self.min_age_TE.mhEvent
         def onChange(event):
             try:
                 self.ageErrorLabel.setText('')
-                self.min_age = int(self.ageMin.getText())
+                self.min_age = int(self.min_age_TE.getText())
                 if self.min_age < 0 or self.min_age >= self.max_age or self.max_age > 70:
                     raise ValueError()
                 self.ageErrorLabel.setTextFormat('%d <= age <= %d', self.min_age, self.max_age)
             except ValueError:
                 self.ageErrorLabel.setText('0 <= min < max <= 70')
 
-        @self.ageMax.mhEvent
+        @self.max_age_TE.mhEvent
         def onChange(event):
             try:
                 self.ageErrorLabel.setText('')
-                self.max_age = int(self.ageMax.getText())
+                self.max_age = int(self.max_age_TE.getText())
                 if self.min_age < 0 or self.min_age >= self.max_age or self.max_age > 70:
                     raise ValueError()
                 self.ageErrorLabel.setTextFormat('%d <= age <= %d', self.min_age, self.max_age)
             except ValueError:
                 self.ageErrorLabel.setText('0 <= min < max <= 70')
 
-        @self.communityButton.mhEvent
+        @self.community_CB.mhEvent
         def onClicked(event):
-            self.community = self.communityButton.selected
+            self.community = self.community_CB.selected
 
-        @self.specialButton.mhEvent
+        @self.special_CB.mhEvent
         def onClicked(event):
-            self.special = self.specialButton.selected
+            self.special = self.special_CB.selected
 
-        @self.savingPathTE.mhEvent
+        @self.saving_path_TE.mhEvent
         def onChange(event):
-            self.saving_path = self.savingPathTE.getText()
-            self.md.set('saving_path', self.saving_path)
-            if not os.path.isdir(self.saving_path):
-                self.spErrorLabel.setText('Directory does not exist.')
-            elif not os.access(self.saving_path, os.W_OK):
-                self.spErrorLabel.setText('Directory is not writable.')
+            self.saving_path = self.saving_path_TE.getText()
+            if os.path.isfile(os.path.join(self.saving_path, self.config_filename)):
+                load_config(self.saving_path)
             else:
-                self.spErrorLabel.setText('')
+                if self.config_loaded:
+                    set_form_values(self.config_attr, self.defaults, disabled=False)
+                self.md.set('saving_path', self.saving_path)
+                if not os.path.isdir(self.saving_path):
+                    self.spErrorLabel.setText('Directory does not exist.')
+                elif not os.access(self.saving_path, os.W_OK):
+                    self.spErrorLabel.setText('Directory is not writable.')
+                else:
+                    self.spErrorLabel.setText('')
 
-        @self.expTE.mhEvent
+        @self.exp_nbr_TE.mhEvent
         def onChange(event):
             try:
-                self.exp_nbr = int(self.expTE.getText())
+                self.exp_nbr = int(self.exp_nbr_TE.getText())
                 self.expErrorLabel.setText('# = {}'.format(self.exp_nbr))
                 if self.exp_nbr < 1 or self.exp_nbr > len(EXPRESSIONS):
                     raise ValueError()
             except ValueError:
                 self.expErrorLabel.setText('1 <= # expression/model <= {}'.format(len(EXPRESSIONS)))
 
-        @self.quantityTE.mhEvent
+        @self.quantity_TE.mhEvent
         def onChange(event):
             try:
-                self.quantity = int(self.quantityTE.getText())
+                self.quantity = int(self.quantity_TE.getText())
                 self.qErrorLabel.setText('# = {}'.format(self.quantity))
                 if self.quantity < 1 or self.quantity > 1000000:
                     raise ValueError()
             except ValueError:
                 self.qErrorLabel.setText('1 <= # models <= 1000000')
 
-        @self.canvasSizeTE.mhEvent
+        @self.canvas_size_TE.mhEvent
         def onChange(event):
             try:
-                self.canvas_size = int(self.canvasSizeTE.getText())
+                self.canvas_size = int(self.canvas_size_TE.getText())
                 self.csErrorLabel.setText('Image shape = {}x{}'.format(self.canvas_size, self.canvas_size))
                 if self.canvas_size < 300 or self.canvas_size > 1400:
                     raise ValueError()
@@ -263,6 +278,8 @@ class BrighterAITaskView(gui3d.TaskView):
                 bg_selector = BackgroundSelector()
 
                 with AttributeSaver() as w:
+                    if not self.config_loaded:
+                        dump_config()
                     for q in range(self.quantity):
                         # reset model expression
                         exp_tv.chooseExpression(None)
@@ -293,6 +310,53 @@ class BrighterAITaskView(gui3d.TaskView):
                                 cp_saver.save()
                                 w.save()
                 self.is_warned = False
+
+        def load_config(save_path):
+
+            self.config_loaded = True
+
+            def dirname(path):
+                if path[-1] == '/':
+                    path = path[:-1]
+                return os.path.dirname(path), os.path.basename(path)
+
+            self.saving_path, data_dir = dirname(self.saving_path)
+            self.md.set('data_dir', data_dir)
+            self.md.set('saving_path', self.saving_path)
+
+            with open(os.path.join(save_path, self.config_filename), 'r') as stream:
+                data_dic = yaml.load(stream)  # type: dict
+                set_form_values(list(data_dic.keys()), list(data_dic.values()), disabled=True)
+
+        def set_form_values(attributes, values, disabled=False):
+            # change all the attributes except the saving_path
+            for attr, value in zip(attributes[:-1], values[:-1]):
+                setattr(self, attr, value)
+                if attr == 'sampling':
+                    values = {1: 0, 2: 1 / 6., 3: 1 / 3., 4: 1 / 2., 5: 2 / 3.}
+                    self.sampling = values[value]
+                    self.sampling_choice = value
+                    for i in range(1, 6):
+                        getattr(self, 'sampling_RB_' + str(i)).setDisabled(disabled)
+                elif attr in ['community', 'special']:
+                    getattr(self, attr + '_CB').setChecked(value)
+                    getattr(self, attr + '_CB').setDisabled(disabled)
+                else:
+                    getattr(self, attr + '_TE').setText(str(value))
+                    if attr not in ['saving_path', 'quantity']:
+                        getattr(self, attr + '_TE').setDisabled(disabled)
+
+        def dump_config():
+            print('dumping config!', os.path.join(self.saving_path, self.md.get('data_dir'), self.config_filename))
+            data = {}
+            for key in self.config_attr:
+                if key == 'sampling':
+                    data['sampling'] = self.sampling_choice
+                else:
+                    data[key] = getattr(self, key)
+
+            with open(os.path.join(self.saving_path, self.config_filename), 'w') as f:
+                yaml.dump(data, f)
 
         def is_form_invalid():
             if self.sampling not in [0, 1 / 6., 1 / 3., 1 / 2., 2 / 3.]:

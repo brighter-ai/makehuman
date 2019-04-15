@@ -91,24 +91,35 @@ class AttributeSaver(Saver):
         self.md = ModelData()
         self.save_dir = self.md.get('saving_path')
         self.index = 1
+        self.new_dir = True
 
-        lt = time.localtime()
-        uid = "{}_{}_{}_{}_{}_{}".format(lt.tm_year, lt.tm_mon, lt.tm_mday, lt.tm_hour, lt.tm_min, lt.tm_sec)
-        self.md.set('data_dir', uid)
-        self.file_name = '{}/dataset.csv'.format(uid)
+        if self.md.get('data_dir') == '':
+            lt = time.localtime()
+            uid = "{}_{}_{}_{}_{}_{}".format(lt.tm_year, lt.tm_mon, lt.tm_mday, lt.tm_hour, lt.tm_min, lt.tm_sec)
+            self.md.set('data_dir', uid)
+        else:
+            self.new_dir = False
+
+        self.file_name = '{}/dataset.csv'.format(self.md.get('data_dir'))
 
     def __enter__(self):
-        os.mkdir('{}/{}'.format(self.save_dir, self.md.get('data_dir')), 0o777)
-        os.mkdir('{}/{}/images'.format(self.save_dir, self.md.get('data_dir')), 0o777)
-        os.mkdir('{}/{}/vertices'.format(self.save_dir, self.md.get('data_dir')), 0o777)
-        os.mkdir('{}/{}/uv_maps'.format(self.save_dir, self.md.get('data_dir')), 0o777)
-        self.file = open(os.path.join(self.save_dir, self.file_name), 'w+')
-        points_col_names = ''
-        for i in range(68):
-            points_col_names += ',x_{},y_{}'.format(i, i)
-        self.file.write(
-            'index,model_uid,image,age,gender,dominant_gender,skin,expression,l_position_x,l_position_y,l_position_z,l_color_r,l_color_g,'
-            'l_color_b,l_specular_r,l_specular_g,l_specular_b,center_x,center_y,center_z,cam_angle_0,cam_angle_1' + points_col_names + '\n')
+        if self.new_dir:
+            os.mkdir('{}/{}'.format(self.save_dir, self.md.get('data_dir')), 0o777)
+            os.mkdir('{}/{}/images'.format(self.save_dir, self.md.get('data_dir')), 0o777)
+            os.mkdir('{}/{}/vertices'.format(self.save_dir, self.md.get('data_dir')), 0o777)
+            os.mkdir('{}/{}/uv_maps'.format(self.save_dir, self.md.get('data_dir')), 0o777)
+
+            points_col_names = ''
+            for i in range(68):
+                points_col_names += ',x_{},y_{}'.format(i, i)
+            self.file.write(
+                'index,model_uid,image,age,gender,dominant_gender,skin,expression,l_position_x,l_position_y,l_position_z,l_color_r,l_color_g,'
+                'l_color_b,l_specular_r,l_specular_g,l_specular_b,center_x,center_y,center_z,cam_angle_0,cam_angle_1' + points_col_names + '\n')
+        else:
+            self.index = sum(1 for _ in open(os.path.join(self.save_dir, self.file_name)))
+
+        self.file = open(os.path.join(self.save_dir, self.file_name), 'a+')
+
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
