@@ -347,7 +347,6 @@ class BrighterAITaskView(gui3d.TaskView):
                         getattr(self, attr + '_TE').setDisabled(disabled)
 
         def dump_config():
-            print('dumping config!', os.path.join(self.saving_path, self.md.get('data_dir'), self.config_filename))
             data = {}
             for key in self.config_attr:
                 if key == 'sampling':
@@ -355,7 +354,7 @@ class BrighterAITaskView(gui3d.TaskView):
                 else:
                     data[key] = getattr(self, key)
 
-            with open(os.path.join(self.saving_path, self.config_filename), 'w') as f:
+            with open(os.path.join(self.saving_path, self.md.get('data_dir'), self.config_filename), 'w') as f:
                 yaml.dump(data, f)
 
         def is_form_invalid():
