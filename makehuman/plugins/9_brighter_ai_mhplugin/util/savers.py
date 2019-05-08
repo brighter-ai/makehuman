@@ -14,7 +14,7 @@ class Saver:
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def save(self):
+    def save(self, *args):
         """ set the entity properties to new random values """
 
 
