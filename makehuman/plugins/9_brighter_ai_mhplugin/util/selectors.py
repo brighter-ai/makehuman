@@ -1,8 +1,11 @@
-from abc import ABCMeta, abstractproperty, abstractmethod
 import os
 import shutil
+from abc import ABCMeta, abstractproperty, abstractmethod
+
+import material
 from PIL import Image
 from numpy.random import randint
+
 from .constant import TEETH, EXPRESSIONS, EYE_COLORS, EYEBROWS, EYELASHES, EYES, TONGUES, SKINS, COMMUNITY_SKINS, SPECIAL_SKINS, COMMUNITY_SPECIAL_SKINS
 from .model_data import ModelData
 
@@ -80,11 +83,11 @@ class SkinSelector(Selector):
         if reselect:
             self.choose()
         file_path = 'data/skins/{}'.format(self.selected)
-        self.human.material.fromFile(file_path)
+        mat = material.fromFile(file_path)
+        self.human.material = mat
 
 
 class BackgroundSelector(Selector):
-
     backgrounds = []
 
     def __init__(self):
@@ -153,7 +156,6 @@ class EyeColorSelector(Selector):
 
 
 class EyebrowsSelector(Selector):
-
     proxy_type = 'eyebrows'
 
     def __init__(self, mh_tool):
@@ -176,7 +178,6 @@ class EyebrowsSelector(Selector):
 
 
 class EyelashesSelector(Selector):
-
     proxy_type = 'eyelashes'
 
     def __init__(self, mh_tool):
@@ -199,7 +200,6 @@ class EyelashesSelector(Selector):
 
 
 class EyesSelector(Selector):
-
     proxy_type = 'eyes'
 
     def __init__(self, mh_tool):
@@ -222,7 +222,6 @@ class EyesSelector(Selector):
 
 
 class TeethSelector(Selector):
-
     proxy_type = 'teeth'
 
     def __init__(self, mh_tool):
@@ -245,7 +244,6 @@ class TeethSelector(Selector):
 
 
 class TongueSelector(Selector):
-
     proxy_type = 'tongue'
 
     def __init__(self, mh_tool):
