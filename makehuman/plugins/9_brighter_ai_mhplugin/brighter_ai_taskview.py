@@ -24,8 +24,8 @@ class BrighterAITaskView(gui3d.TaskView):
 
     def __init__(self, category):
 
-        self.sampling = 0
-        self.sampling_choice = 1
+        self.constant = 0.5
+        self.stddev = 0.16
         self.grid_h = 3
         self.grid_w = 3
         self.min_angle = -90
@@ -34,6 +34,8 @@ class BrighterAITaskView(gui3d.TaskView):
         self.max_age = 70
         self.community = False
         self.special = False
+        self.restriction = True
+        self.symmetry = True
         self.exp_nbr = 5
         self.canvas_size = 800
         self.quantity = 10
@@ -50,15 +52,19 @@ class BrighterAITaskView(gui3d.TaskView):
 
         bai_box = self.addLeftWidget(gui.GroupBox('Generate 3D Faces'))
 
-        self.samplingLabel = bai_box.addWidget(gui.TextView('Probability distribution (Face):'))
-        self.samplingRBGroup = []
+        self.samplingLabel = bai_box.addWidget(gui.TextView('Sampling parameters:'))
 
-        # We make the first one selected
-        self.sampling_RB_1 = bai_box.addWidget(gui.RadioButton(self.samplingRBGroup, 'Uniform', selected=True))
-        self.sampling_RB_2 = bai_box.addWidget(gui.RadioButton(self.samplingRBGroup, 'N(0.5, 1/6)'))
-        self.sampling_RB_3 = bai_box.addWidget(gui.RadioButton(self.samplingRBGroup, 'N(0.5, 1/3)'))
-        self.sampling_RB_4 = bai_box.addWidget(gui.RadioButton(self.samplingRBGroup, 'N(0.5, 1/2)'))
-        self.sampling_RB_5 = bai_box.addWidget(gui.RadioButton(self.samplingRBGroup, 'N(0.5, 2/3)'))
+        self.restriction_CB = bai_box.addWidget(gui.CheckBox('Restrictions'))
+        self.restriction_CB.setChecked(True)
+        self.symmetry_CB = bai_box.addWidget(gui.CheckBox('Symmetry'))
+        self.symmetry_CB.setChecked(True)
+
+        self.stddev_S = bai_box.addWidget(gui.Slider(value=self.stddev, label='Standard Deviation'))
+        self.stddev_Label = bai_box.addWidget(gui.TextView(
+            'Uniform Distribution' if self.stddev == 0. else 'Normal Dist N(0.0, {:.2f})'.format(self.stddev)
+        ))
+
+        bai_box.addWidget(gui.TextView(''))
 
         self.camSizeLabel = bai_box.addWidget(gui.TextView('Camera Grid Size:'))
         self.grid_h_TE = bai_box.addWidget(gui.TextEdit(text=''))
@@ -103,30 +109,23 @@ class BrighterAITaskView(gui3d.TaskView):
 
         self.startButton = bai_box.addWidget(gui.Button("Start"))
 
-        @self.sampling_RB_1.mhEvent
-        def onClicked(event):
-            self.sampling = 0
-            self.sampling_choice = 1
+        @self.stddev_S.mhEvent
+        def onChange(value):
+            # print(dir(self.stddev_S))
+            self.stddev = round(value, 2)
+            self.stddev_S.setValue(self.stddev)
+            if value == 0.0:
+                self.stddev_Label.setTextFormat('Uniform Distribution')
+            else:
+                self.stddev_Label.setTextFormat('Normal Dist N(0.0, {:.2f})'.format(self.stddev))
 
-        @self.sampling_RB_2.mhEvent
+        @self.restriction_CB.mhEvent
         def onClicked(event):
-            self.sampling = 1 / 6.
-            self.sampling_choice = 2
+            self.restriction = self.restriction_CB.selected
 
-        @self.sampling_RB_3.mhEvent
+        @self.symmetry_CB.mhEvent
         def onClicked(event):
-            self.sampling = 1 / 3.
-            self.sampling_choice = 3
-
-        @self.sampling_RB_4.mhEvent
-        def onClicked(event):
-            self.sampling = 1 / 2.
-            self.sampling_choice = 4
-
-        @self.sampling_RB_5.mhEvent
-        def onClicked(event):
-            self.sampling = 2 / 3.
-            self.sampling_choice = 5
+            self.symmetry = self.symmetry_CB.selected
 
         @self.grid_h_TE.mhEvent
         def onChange(event):
@@ -266,8 +265,8 @@ class BrighterAITaskView(gui3d.TaskView):
 
                 age_reg = AgeRegressor(self.app.selectedHuman, self.min_age, self.max_age)
                 beta_reg = BetaRegressor(self.app.selectedHuman)
-                const_reg = ConstRegressor(self.app.selectedHuman, 0.5)
-                face_reg = FaceRegressor(self.app.selectedHuman, stddev=self.sampling, symmetry=True, restricted=True)
+                const_reg = ConstRegressor(self.app.selectedHuman, self.constant)
+                face_reg = FaceRegressor(self.app.selectedHuman, stddev=self.stddev, symmetry=self.symmetry, restricted=self.restriction)
                 camera = Camera(self.app, self.grid_w, self.grid_h, self.min_angle, self.max_angle)
 
                 screen_saver = ScreenSaver(G.windowWidth, G.windowHeight)
@@ -278,8 +277,8 @@ class BrighterAITaskView(gui3d.TaskView):
                 bg_selector = BackgroundSelector()
 
                 with AttributeSaver() as w:
-                    if not self.config_loaded:
-                        dump_config()
+                    # if not self.config_loaded:
+                    #     dump_config()
                     for q in range(self.quantity):
                         # reset model expression
                         exp_tv.chooseExpression(None)
@@ -333,11 +332,12 @@ class BrighterAITaskView(gui3d.TaskView):
             for attr, value in zip(attributes[:-1], values[:-1]):
                 setattr(self, attr, value)
                 if attr == 'sampling':
-                    values = {1: 0, 2: 1 / 6., 3: 1 / 3., 4: 1 / 2., 5: 2 / 3.}
-                    self.sampling = values[value]
-                    self.sampling_choice = value
-                    for i in range(1, 6):
-                        getattr(self, 'sampling_RB_' + str(i)).setDisabled(disabled)
+                    continue
+                #     values = {1: 0, 2: 1 / 6., 3: 1 / 3., 4: 1 / 2., 5: 2 / 3.}
+                #     self.sampling = values[value]
+                #     self.sampling_choice = value
+                #     for i in range(1, 6):
+                #         getattr(self, 'sampling_RB_' + str(i)).setDisabled(disabled)
                 elif attr in ['community', 'special']:
                     getattr(self, attr + '_CB').setChecked(value)
                     getattr(self, attr + '_CB').setDisabled(disabled)
@@ -358,9 +358,7 @@ class BrighterAITaskView(gui3d.TaskView):
                 yaml.dump(data, f)
 
         def is_form_invalid():
-            if self.sampling not in [0, 1 / 6., 1 / 3., 1 / 2., 2 / 3.]:
-                return 'sampling invalid'
-            elif self.grid_h < 1 or self.grid_h > 9:
+            if self.grid_h < 1 or self.grid_h > 9:
                 return 'grid height invalid'
             elif self.grid_w < 1 or self.grid_w > 9:
                 return 'grid width invalid'
