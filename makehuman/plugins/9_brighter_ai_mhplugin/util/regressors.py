@@ -17,6 +17,29 @@ class Regressor:
         """apply changes to the human model"""
 
 
+class ApplyRegressor(Regressor):
+
+    """
+    A class that implements apply() function and require human instance as an arg.
+    just to avoid implementing the same __init__ and apply functions multiple times
+    """
+    def __init__(self, human):
+        self.human = human
+        self.md = ModelData()
+        self.values = {}
+
+    @abstractmethod
+    def randomize(self):
+        """ set the entity properties to new random values """
+
+    def apply(self, reselect=True):
+        if reselect:
+            self.randomize()
+        for key, val in self.values.items():
+            modifier = self.human.getModifier(key)
+            modifier.setValue(val)
+
+
 class AgeRegressor(Regressor):
 
     def __init__(self, human, min_age, max_age):
@@ -38,12 +61,10 @@ class AgeRegressor(Regressor):
         modifier.setValue(self.age)
 
 
-class BetaRegressor(Regressor):
+class BetaRegressor(ApplyRegressor):
 
     def __init__(self, human):
-        self.human = human
-        self.md = ModelData()
-        self.values = {}
+        super(BetaRegressor, self).__init__(human)
 
     def randomize(self):
         for key, val in zip(BETA_TARGETS, beta(0.5, 0.5, len(BETA_TARGETS))):
@@ -58,13 +79,11 @@ class BetaRegressor(Regressor):
             modifier.setValue(val)
 
 
-class ConstRegressor(Regressor):
+class ConstRegressor(ApplyRegressor):
 
     def __init__(self, human, const):
-        self.human = human
+        super(ConstRegressor, self).__init__(human)
         self.constant = const
-        self.md = ModelData()
-        self.values = {}
 
     def randomize(self):
         for modifier in CONST_TARGETS:
@@ -74,20 +93,11 @@ class ConstRegressor(Regressor):
             self.values[modifier] = val
             self.md.set(modifier, val)
 
-    def apply(self, reselect=True):
-        if reselect:
-            self.randomize()
-        for key, val in self.values.items():
-            modifier = self.human.getModifier(key)
-            modifier.setValue(val)
 
-
-class HeadShapeRegressor(Regressor):
+class HeadShapeRegressor(ApplyRegressor):
 
     def __init__(self, human):
-        self.human = human
-        self.md = ModelData()
-        self.values = {}
+        super(HeadShapeRegressor, self).__init__(human)
 
     def randomize(self):
         remaining = 1
@@ -100,20 +110,11 @@ class HeadShapeRegressor(Regressor):
 
             self.values[target] = value
 
-    def apply(self, reselect=True):
-        if reselect:
-            self.randomize()
-        for key, val in self.values.items():
-            modifier = self.human.getModifier(key)
-            modifier.setValue(val)
 
-
-class SymmetricalRegressor(Regressor):
+class SymmetricalRegressor(ApplyRegressor):
 
     def __init__(self, human, symmetry=True, stddev=0):
-        self.human = human
-        self.md = ModelData()
-        self.values = {}
+        super(SymmetricalRegressor, self).__init__(human)
         self.symmetry = symmetry
         self.stddev = stddev
 
@@ -131,20 +132,11 @@ class SymmetricalRegressor(Regressor):
             self.values[key.replace('X', 'r')] = values[0]
             self.values[key.replace('X', 'l')] = values[1]
 
-    def apply(self, reselect=True):
-        if reselect:
-            self.randomize()
-        for key, val in self.values.items():
-            modifier = self.human.getModifier(key)
-            modifier.setValue(val)
 
-
-class RestrictedRegressor(Regressor):
+class RestrictedRegressor(ApplyRegressor):
 
     def __init__(self, human, restricted=True, stddev=0):
-        self.human = human
-        self.md = ModelData()
-        self.values = {}
+        super(RestrictedRegressor, self).__init__(human)
         self.restricted = restricted
         self.stddev = stddev
 
@@ -165,20 +157,11 @@ class RestrictedRegressor(Regressor):
                 self.values[key] = val
                 self.md.set(key, val)
 
-    def apply(self, reselect=True):
-        if reselect:
-            self.randomize()
-        for key, val in self.values.items():
-            modifier = self.human.getModifier(key)
-            modifier.setValue(val)
 
-
-class UnrestrictedRegressor(Regressor):
+class UnrestrictedRegressor(ApplyRegressor):
 
     def __init__(self, human, stddev):
-        self.human = human
-        self.md = ModelData()
-        self.values = {}
+        super(UnrestrictedRegressor, self).__init__(human)
         self.stddev = stddev
 
     def randomize(self):
@@ -191,13 +174,6 @@ class UnrestrictedRegressor(Regressor):
         for key, val in zip(UNRESTRICTED_TARGETS, sample):
             self.values[key] = val
             self.md.set(key, val)
-
-    def apply(self, reselect=True):
-        if reselect:
-            self.randomize()
-        for key, val in self.values.items():
-            modifier = self.human.getModifier(key)
-            modifier.setValue(val)
 
 
 class FaceRegressor:
