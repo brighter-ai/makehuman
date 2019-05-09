@@ -267,7 +267,7 @@ class BrighterAITaskView(gui3d.TaskView):
                 age_reg = AgeRegressor(self.app.selectedHuman, self.min_age, self.max_age)
                 beta_reg = BetaRegressor(self.app.selectedHuman)
                 const_reg = ConstRegressor(self.app.selectedHuman, 0.5)
-                face_reg = FaceRegressor(self.app.selectedHuman, self.sampling)
+                face_reg = FaceRegressor(self.app.selectedHuman, stddev=self.sampling, symmetry=True, restricted=True)
                 camera = Camera(self.app, self.grid_w, self.grid_h, self.min_angle, self.max_angle)
 
                 screen_saver = ScreenSaver(G.windowWidth, G.windowHeight)
