@@ -336,7 +336,7 @@ class BrighterAITaskView(gui3d.TaskView):
                     getattr(self, attr + '_CB').setDisabled(disabled)
                 elif attr == 'constant' or attr == 'saving_path':
                     continue
-                elif attr == 'stddev':  # /home/bothmena/Data/BrighterAI/MH/2019_5_10_3_5_4
+                elif attr == 'stddev':
                     self.stddev_S.setValue(value)
                     self.stddev_S.setDisabled(disabled)
                 else:
