@@ -1,26 +1,26 @@
-import gui3d
-import gui
 import os
 import uuid
-from core import G
+
+import gui
+import gui3d
 import yaml
-
 from PyQt5.QtWidgets import *
+from core import G
 
-from .util.selectors import EyelashesSelector, EyebrowsSelector, EyeColorSelector, EyesSelector, TeethSelector, \
-    TongueSelector, ExpressionSelector, SkinSelector, BackgroundSelector
+from .util.camera import Camera
+from .util.constant import EXPRESSIONS
+from .util.model_data import ModelData
 from .util.regressors import AgeRegressor, BetaRegressor, ConstRegressor, FaceRegressor
 from .util.savers import AttributeSaver, UVMapSaver, VerticesSaver, ScreenSaver, CenterPointSaver
-from .util.camera import Camera
-from .util.model_data import ModelData
-from .util.constant import EXPRESSIONS
+from .util.selectors import EyelashesSelector, EyebrowsSelector, EyeColorSelector, EyesSelector, TeethSelector, \
+    TongueSelector, ExpressionSelector, SkinSelector, BackgroundSelector
 
 
 class BrighterAITaskView(gui3d.TaskView):
-
     config_filename = '.config.yaml'
-    config_attr = ['sampling', 'grid_h', 'grid_w', 'min_angle', 'max_angle', 'min_age', 'max_age', 'community', 'special', 'exp_nbr', 'canvas_size', 'quantity', 'saving_path']
-    defaults = [1, 3, 3, -90, 90, 20, 70, False, False, 5, 800, 10, '']
+    config_attr = ['stddev', 'constant', 'grid_h', 'grid_w', 'min_angle', 'max_angle', 'min_age', 'max_age', 'restriction', 'symmetry', 'community', 'special', 'exp_nbr',
+                   'canvas_size', 'quantity', 'saving_path']
+    defaults = [0.16, 0.5, 3, 3, -90, 90, 20, 70, True, True, False, False, 5, 800, 10, '']
 
     def __init__(self, category):
 
@@ -277,8 +277,8 @@ class BrighterAITaskView(gui3d.TaskView):
                 bg_selector = BackgroundSelector()
 
                 with AttributeSaver() as w:
-                    # if not self.config_loaded:
-                    #     dump_config()
+                    if not self.config_loaded:
+                        dump_config()
                     for q in range(self.quantity):
                         # reset model expression
                         exp_tv.chooseExpression(None)
@@ -329,18 +329,16 @@ class BrighterAITaskView(gui3d.TaskView):
 
         def set_form_values(attributes, values, disabled=False):
             # change all the attributes except the saving_path
-            for attr, value in zip(attributes[:-1], values[:-1]):
+            for attr, value in zip(attributes, values):
                 setattr(self, attr, value)
-                if attr == 'sampling':
-                    continue
-                #     values = {1: 0, 2: 1 / 6., 3: 1 / 3., 4: 1 / 2., 5: 2 / 3.}
-                #     self.sampling = values[value]
-                #     self.sampling_choice = value
-                #     for i in range(1, 6):
-                #         getattr(self, 'sampling_RB_' + str(i)).setDisabled(disabled)
-                elif attr in ['community', 'special']:
+                if attr in ['symmetry', 'restriction', 'community', 'special']:
                     getattr(self, attr + '_CB').setChecked(value)
                     getattr(self, attr + '_CB').setDisabled(disabled)
+                elif attr == 'constant' or attr == 'saving_path':
+                    continue
+                elif attr == 'stddev':  # /home/bothmena/Data/BrighterAI/MH/2019_5_10_3_5_4
+                    self.stddev_S.setValue(value)
+                    self.stddev_S.setDisabled(disabled)
                 else:
                     getattr(self, attr + '_TE').setText(str(value))
                     if attr not in ['saving_path', 'quantity']:
@@ -349,10 +347,7 @@ class BrighterAITaskView(gui3d.TaskView):
         def dump_config():
             data = {}
             for key in self.config_attr:
-                if key == 'sampling':
-                    data['sampling'] = self.sampling_choice
-                else:
-                    data[key] = getattr(self, key)
+                data[key] = getattr(self, key)
 
             with open(os.path.join(self.saving_path, self.md.get('data_dir'), self.config_filename), 'w') as f:
                 yaml.dump(data, f)
