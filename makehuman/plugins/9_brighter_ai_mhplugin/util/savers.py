@@ -109,7 +109,7 @@ class AttributeSaver(Saver):
             os.mkdir('{}/{}/vertices'.format(self.save_dir, self.md.get('data_dir')), 0o777)
             os.mkdir('{}/{}/uv_maps'.format(self.save_dir, self.md.get('data_dir')), 0o777)
 
-            self.file = open(os.path.join(self.save_dir, self.file_name), 'a+')
+            self.file = open(os.path.join(self.save_dir, self.file_name), 'w')
             points_col_names = ''
             for i in range(68):
                 points_col_names += ',x_{},y_{}'.format(i, i)
@@ -117,7 +117,7 @@ class AttributeSaver(Saver):
                 'index,model_uid,image,age,gender,dominant_gender,skin,expression,l_position_x,l_position_y,l_position_z,l_color_r,l_color_g,'
                 'l_color_b,l_specular_r,l_specular_g,l_specular_b,center_x,center_y,center_z,cam_angle_0,cam_angle_1' + points_col_names + '\n')
         else:
-            self.file = open(os.path.join(self.save_dir, self.file_name), 'w')
+            self.file = open(os.path.join(self.save_dir, self.file_name), 'a+')
             self.index = sum(1 for _ in open(os.path.join(self.save_dir, self.file_name)))
 
         return self
