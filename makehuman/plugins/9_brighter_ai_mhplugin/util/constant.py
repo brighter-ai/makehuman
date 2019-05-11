@@ -7,10 +7,32 @@ AGE_TARGET = ['macrodetails/Age']
 ETHNICITY = ['macrodetails/African',
              'macrodetails/Asian',
              'macrodetails/Caucasian']
-EXPRESSIONS = ['anger01', 'attention01', 'boring01', 'cry01', 'determination01', 'determination02', 'disgust01', 'doubt01',
-               'effort01', 'effort02', 'effort03', 'fear01', 'fear02', 'fear03', 'fear04', 'laugh01', 'laugh02', 'sad01',
-               'sad02', 'sceptical01', 'sleep01', 'smile01', 'smile02', 'smile03', 'smile04', 'smile05', 'stunned01', 'surprise01',
-               'surprise02', 'threaten01', 'threaten02', 'vocalize01']
+EXPRESSIONS = [
+    'attention01',
+    'determination01',
+    'determination02',
+    'doubt01',
+    'laugh01',
+    'laugh02',
+    'sceptical01',
+    'smile01',
+    'smile02',
+    'smile03',
+    'smile04',
+    'smile05',
+    'smile01',
+    'smile02',
+    'smile03',
+    'smile04',
+    'smile05',
+    'smile01',
+    'smile02',
+    'smile03',
+    'smile04',
+    'smile05',
+    'smile05',
+    'smile05',
+]
 EYEBROWS = ['eyebrow002', 'eyebrow004', 'eyebrow006', 'eyebrow008', 'eyebrow010', 'eyebrow012', 'eyebrow001',
             'eyebrow003', 'eyebrow005', 'eyebrow007', 'eyebrow009', 'eyebrow011']
 EYE_COLORS = ['deepblue', 'grey', 'lightblue', 'bluegreen', 'brownlight', 'blue', 'brown', 'green', 'ice']
