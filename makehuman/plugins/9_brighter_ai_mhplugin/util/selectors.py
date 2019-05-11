@@ -6,7 +6,7 @@ import material
 from PIL import Image
 from numpy.random import randint
 
-from .constant import TEETH, EXPRESSIONS, EYE_COLORS, EYEBROWS, EYELASHES, EYES, TONGUES, SKINS, COMMUNITY_SKINS, SPECIAL_SKINS, COMMUNITY_SPECIAL_SKINS
+from .constant import TEETH, EXPRESSIONS, EYE_COLORS, EYEBROWS, EYELASHES, EYES, TONGUES, YOUNG_SKINS, SKINS, COMMUNITY_SKINS, SPECIAL_SKINS, COMMUNITY_SPECIAL_SKINS
 from .model_data import ModelData
 
 
@@ -69,15 +69,19 @@ class SkinSelector(Selector):
             self.selection = SKINS
             if special:
                 self.selection += SPECIAL_SKINS
-        self.model_data = ModelData()
+        self.md = ModelData()
 
     @property
     def selected(self):
         return self.__selected
 
     def choose(self):
-        self.__selected = self.selection[randint(0, len(self.selection))]
-        self.model_data.set('skin', self.selected)
+        age = self.md.get('real_age')
+        if age < 20:
+            self.__selected = YOUNG_SKINS[randint(0, len(YOUNG_SKINS))]
+        else:
+            self.__selected = self.selection[randint(0, len(self.selection))]
+        self.md.set('skin', self.selected)
 
     def apply(self, reselect=True):
         if reselect:

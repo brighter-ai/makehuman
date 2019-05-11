@@ -55,6 +55,16 @@ INVISIBLE_SKINS = [
     'Light_Skin_with_Makeup/light_skin_makeup.mhmat',
     'Light_Skin_with_Natural_Makeup/lightskinfemale_natural_makeup.mhmat',
 ]
+YOUNG_SKINS = [
+    'young_african_female/young_african_female.mhmat',
+    'young_african_male/young_african_male.mhmat',
+    'young_asian_female/young_asian_female.mhmat',
+    'young_asian_male/young_asian_male.mhmat',
+    'young_caucasian_female/young_caucasian_female.mhmat',
+    'young_caucasian_female/young_caucasian_female2.mhmat',
+    'young_caucasian_male/young_caucasian_male.mhmat',
+    'young_caucasian_male/young_caucasian_male2.mhmat',
+]
 SKINS = [
     'middleage_african_female/middleage_african_female.mhmat',
     'middleage_african_male/middleage_african_male.mhmat',
