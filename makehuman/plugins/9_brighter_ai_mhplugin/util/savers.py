@@ -68,7 +68,7 @@ class VerticesSaver(Saver):
                                                      self.md.get('expression'))
         else:
             filename = '{}/{}/vertices/{}'.format(self.md.get('saving_path'), self.md.get('data_dir'), self.md.get('model_uid'))
-        np.save(filename, self.mesh.getVertexCoordinates()[self.indices, :])
+        np.save(filename, self.mesh.getVertexCoordinates())
 
 
 class CenterPointSaver(Saver):
