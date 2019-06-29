@@ -68,7 +68,7 @@ class VerticesSaver(Saver):
                                                      self.md.get('expression'))
         else:
             filename = '{}/{}/vertices/{}'.format(self.md.get('saving_path'), self.md.get('data_dir'), self.md.get('model_uid'))
-        np.save(filename, self.mesh.getVertexCoordinates()[self.indices, :])
+        np.save(filename, self.mesh.getVertexCoordinates())
 
 
 class CenterPointSaver(Saver):
@@ -113,6 +113,7 @@ class AttributeSaver(Saver):
             points_col_names = ''
             for i in range(68):
                 points_col_names += ',x_{},y_{}'.format(i, i)
+            points_col_names += ',bb_x,bb_y,bb_width,bb_height'
             self.file.write(
                 'index,model_uid,image,age,gender,dominant_gender,skin,expression,l_position_x,l_position_y,l_position_z,l_color_r,l_color_g,'
                 'l_color_b,l_specular_r,l_specular_g,l_specular_b,center_x,center_y,center_z,cam_angle_0,cam_angle_1' + points_col_names + '\n')
@@ -129,8 +130,8 @@ class AttributeSaver(Saver):
         return int(self.md.get('macrodetails/Gender') >= 0.5)
 
     def save(self):
-        points_coords = [0] * 136
-        formatted_str = '{}' + ',{}' * 157 + '\n'
+        points_coords = [0] * 140
+        formatted_str = '{}' + ',{}' * 161 + '\n'
         self.file.write(formatted_str.
                         format(self.index, self.md.get('model_uid'), self.md.get('image'), self.md.get('real_age'), self.md.get('macrodetails/Gender'), self.get_dominant_gender(),
                                self.md.get('skin'), self.md.get('expression'), self.md.get('l_position_x'), self.md.get('l_position_y'),
